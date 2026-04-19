@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Mundialito.Api/Mundialito.Api.csproj" Id="3eee9443-2254-402a-9d49-5109fe02507b" />
+  <Project Path="Mundialito.Application/Mundialito.Application.csproj" Id="6eebb916-ab51-402b-84b7-6040b3b3c515" />
+  <Project Path="Mundialito.Domain/Mundialito.Domain.csproj" Id="80b8692f-9e3e-41fb-94c9-d33b0c0d1ee6" />
+  <Project Path="Mundialito.Infrastructure/Mundialito.Infrastructure.csproj" Id="e1e38fc7-bd70-479b-9097-bc00a9e67ad3" />
+</Solution>
