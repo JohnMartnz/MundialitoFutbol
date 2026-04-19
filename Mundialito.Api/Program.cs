@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Mundialito.Api.Endpoints;
+using Mundialito.Application.Abstractions;
 using Mundialito.Application.Abstractions.Repositories;
 using Mundialito.Application.Common.Interfaces;
 using Mundialito.Application.Features.Tournaments.Commands.CreateTournament;
+using Mundialito.Infrastructure.Idempotency;
 using Mundialito.Infrastructure.Persistence;
 using Mundialito.Infrastructure.Repositories;
 
@@ -30,6 +32,7 @@ builder.Services.AddMediatR(cfg =>
 // Repositories
 builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IIdempotencyService, IdempotencyService>();
 
 var app = builder.Build();
 
