@@ -18,6 +18,7 @@ namespace Mundialito.Infrastructure.Persistence
         public DbSet<Match> Matches => Set<Match>();
         public DbSet<GoalMatch> GoalMatches => Set<GoalMatch>();
         public DbSet<TeamTournament> TeamTournaments => Set<TeamTournament>();
+        public DbSet<IdempotencyRequest> IdempotencyRequests => Set<IdempotencyRequest>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
