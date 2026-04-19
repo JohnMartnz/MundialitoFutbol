@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Mundialito.Application\Mundialito.Application.csproj" />
+  </ItemGroup>
+
 </Project>
