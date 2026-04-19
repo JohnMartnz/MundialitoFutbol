@@ -7,28 +7,28 @@ namespace Mundialito.Domain.Common
     public class Result
     {
         public bool IsSuccess { get; }
-        public string Message { get; }
+        public string Error { get; }
 
-        protected Result(bool isSuccess, string message)
+        protected Result(bool isSuccess, string error)
         {
             IsSuccess = isSuccess;
-            Message = message;
+            Error = error;
         }
 
         public static Result Success() => new Result(true, string.Empty);
-        public static Result Failure(string message) => new Result(false, message);
+        public static Result Failure(string error) => new Result(false, error);
     }
 
     public class Result<T> : Result
     {
         public T? Value { get; }
 
-        private Result(bool isSuccess, string message, T? value) : base(isSuccess, message)
+        private Result(bool isSuccess, string error, T? value) : base(isSuccess, error)
         {
             Value = value;
         }
 
         public static Result<T> Success(T value) => new Result<T>(true, string.Empty, value);
-        public new static Result<T> Failure(string message) => new Result<T>(false, message, default);
+        public new static Result<T> Failure(string error) => new Result<T>(false, error, default);
     }
 }
