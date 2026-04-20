@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Mundialito.Api.Filters;
 using Mundialito.Application.Features.Tournaments.Commands.CreateTournament;
+using Mundialito.Application.Features.Tournaments.Queries.GetTournaments;
 
 namespace Mundialito.Api.Endpoints
 {
@@ -22,6 +23,20 @@ namespace Mundialito.Api.Endpoints
             .AddEndpointFilter<IdempotencyFilter>()
             .WithName("CreateTournament")
             .WithSummary("Creates a new tournament");
+
+            group.MapGet("/", async (ISender sender, int pageNumber = 1, int pageSize = 10) =>
+            {
+                if(pageNumber <= 0 || pageSize <= 0)
+                {
+                    return Results.BadRequest("Parámetros de paginación inválidos");
+                }
+
+                var query = new GetTournamentsQuery(pageNumber, pageSize);
+                var result = await sender.Send(query);
+                return Results.Ok(result);
+            })
+            .WithName("GetTournaments")
+            .WithSummary("Retrieves a paginated list of tournaments");
         }
     }
 }
