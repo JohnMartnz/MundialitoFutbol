@@ -1,4 +1,5 @@
 ﻿using Mundialito.Domain.Common;
+using Mundialito.Domain.Events;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,6 +23,8 @@ namespace Mundialito.Domain.Entities
             Name = name;
             StartDate = startDate;
             EndDate = endDate;
+
+            RaiseDomainEvent(new TournamentCreatedEvent(Guid.NewGuid(), Id, Name, DateTime.UtcNow));
         }
 
         public Result AddTeam(Guid teamId)

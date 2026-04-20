@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Mundialito.Api.Endpoints;
+using Mundialito.Api.Middleware;
+using Mundialito.Api.Serilog;
 using Mundialito.Application.Abstractions;
 using Mundialito.Application.Abstractions.Data;
 using Mundialito.Application.Abstractions.Repositories;
@@ -8,6 +10,7 @@ using Mundialito.Application.Features.Tournaments.Commands.CreateTournament;
 using Mundialito.Infrastructure.Idempotency;
 using Mundialito.Infrastructure.Persistence;
 using Mundialito.Infrastructure.Repositories;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +33,10 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(CreateTournamentCommand).Assembly);
 });
 
+// Serilog
+SerilogConfig.Configure();
+builder.Host.UseSerilog();
+
 // Repositories
 builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
 builder.Services.AddScoped<ITournamentQueryRepository, TournamentQueryRepository>();
@@ -38,6 +45,10 @@ builder.Services.AddScoped<IIdempotencyService, IdempotencyService>();
 builder.Services.AddScoped<IConnectionFactory, SqlConnectionFactory>();
 
 var app = builder.Build();
+
+// Middleware
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 // Endpoints
 app.MapTournamentEndpoints();
