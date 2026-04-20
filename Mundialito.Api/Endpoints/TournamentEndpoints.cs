@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Mundialito.Api.Extensions;
 using Mundialito.Api.Filters;
 using Mundialito.Application.Features.Tournaments.Commands.CreateTournament;
 using Mundialito.Application.Features.Tournaments.Queries.GetTournaments;
@@ -16,9 +17,7 @@ namespace Mundialito.Api.Endpoints
                 var command = new CreateTournamentCommand(request.Name, request.StartDate, request.EndDate);
                 var result = await sender.Send(command);
 
-                return result.IsSuccess
-                    ? Results.Created($"/api/tournaments/{result.Value}", result.Value)
-                    : Results.BadRequest(result.Error);
+                return result.ToHttpResult($"/api/tournaments/{result.Value}");
             })
             .AddEndpointFilter<IdempotencyFilter>()
             .WithName("CreateTournament")

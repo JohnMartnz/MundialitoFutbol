@@ -26,7 +26,7 @@ namespace Mundialito.Application.Features.Tournaments.Commands.CreateTournament
 
             if (nameExists)
             {
-                return Result<Guid>.Failure("El nombre del torneo ya existe");
+                return Result<Guid>.Conflict("El nombre del torneo ya existe");
             }
 
             var tournament = new Tournament(command.Name, command.StartDate, command.EndDate);
