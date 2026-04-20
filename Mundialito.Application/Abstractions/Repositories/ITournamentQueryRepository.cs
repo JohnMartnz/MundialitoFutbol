@@ -8,6 +8,6 @@ namespace Mundialito.Application.Abstractions.Repositories
 {
     public interface ITournamentQueryRepository
     {
-        Task<PagedResult<TournamentDto>> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+        Task<PagedResult<TournamentDto>> GetPagedAsync(int pageNumber, int pageSize, string? search, string? sortBy, string? sortDirection, CancellationToken cancellationToken = default);
     }
 }

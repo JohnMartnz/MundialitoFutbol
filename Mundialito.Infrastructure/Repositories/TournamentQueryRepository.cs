@@ -6,6 +6,7 @@ using Mundialito.Application.Common;
 using Mundialito.Application.Features.Tournaments.Queries.GetTournaments;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Mundialito.Infrastructure.Repositories
@@ -19,26 +20,62 @@ namespace Mundialito.Infrastructure.Repositories
             _connectionFactory = sqlConnectionFactory;
         }
 
-        public async Task<PagedResult<TournamentDto>> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<TournamentDto>> GetPagedAsync(
+            int pageNumber,
+            int pageSize,
+            string? search,
+            string? sortBy,
+            string? sortDirection,
+            CancellationToken cancellationToken = default
+        )
         {
             using var connection = _connectionFactory.CreateConnection();
 
-            const string sqlItems = @"
-                SELECT Id, Name, StartDate, EndDate 
-                FROM Tournaments 
-                ORDER BY Name 
-                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
-                
-                SELECT COUNT(*) FROM Tournaments;
-            ";
+            var where = new StringBuilder("WHERE 1 = 1");
+
+            var parameters = new DynamicParameters();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                where.Append(" AND Name LIKE @Search ");
+                parameters.Add("Search", $"%{search}%");
+            }
+
+            var orderBy = sortBy?.ToLower() switch
+            {
+                "name" => "Name",
+                "startdate" => "StartDate",
+                "enddate" => "EndDate",
+                _ => "Name"
+            };
+
+            var direction = sortDirection?.ToUpper() == "DESC" ? "DESC" : "ASC";
 
             var offset = Math.Max(0, (pageNumber - 1) * pageSize);
 
-            using var multi = await connection.QueryMultipleAsync(new CommandDefinition(sqlItems, new { Offset = offset, PageSize = pageSize }, cancellationToken: cancellationToken));
-            var items = await multi.ReadAsync<TournamentDto>();
-            var totalCount = await multi.ReadSingleAsync<int>();
+            var sql = $@"
+                SELECT Id, Name, StartDate, EndDate
+                FROM Tournaments
+                {where}
+                ORDER BY {orderBy} {direction}
+                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
 
-            return new PagedResult<TournamentDto>(items, totalCount, pageNumber, pageSize);
+                SELECT COUNT(*)
+                FROM Tournaments
+                {where};
+            ";
+
+            parameters.Add("Offset", offset);
+            parameters.Add("PageSize", pageSize);
+
+            using var multi = await connection.QueryMultipleAsync(
+                new CommandDefinition(sql, parameters, cancellationToken: cancellationToken)
+            );
+
+            var items = await multi.ReadAsync<TournamentDto>();
+            var total = await multi.ReadFirstAsync<int>();
+
+            return new PagedResult<TournamentDto>(items, total, pageNumber, pageSize);
         }
     }
 }

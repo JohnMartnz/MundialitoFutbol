@@ -19,7 +19,7 @@ namespace Mundialito.Application.Features.Tournaments.Queries.GetTournaments
 
         public async Task<PagedResult<TournamentDto>> Handle(GetTournamentsQuery request, CancellationToken cancellationToken)
         {
-            return await _repository.GetPagedAsync(request.PageNumber, request.PageSize, cancellationToken);
+            return await _repository.GetPagedAsync(request.PageNumber, request.PageSize, request.Search, request.SortBy, request.SortDirection, cancellationToken);
         }
     }
 }

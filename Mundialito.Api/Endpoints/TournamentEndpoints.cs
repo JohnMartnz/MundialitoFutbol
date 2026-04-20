@@ -24,14 +24,14 @@ namespace Mundialito.Api.Endpoints
             .WithName("CreateTournament")
             .WithSummary("Creates a new tournament");
 
-            group.MapGet("/", async (ISender sender, int pageNumber = 1, int pageSize = 10) =>
+            group.MapGet("/", async (ISender sender, int pageNumber = 1, int pageSize = 10, string? search = null, string? sortBy = null, string? sortDirection = null) =>
             {
                 if(pageNumber <= 0 || pageSize <= 0)
                 {
                     return Results.BadRequest("Parámetros de paginación inválidos");
                 }
 
-                var query = new GetTournamentsQuery(pageNumber, pageSize);
+                var query = new GetTournamentsQuery(pageNumber, pageSize, search, sortBy, sortDirection);
                 var result = await sender.Send(query);
                 return Results.Ok(result);
             })
