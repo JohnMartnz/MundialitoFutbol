@@ -72,10 +72,10 @@ namespace Mundialito.Infrastructure.Repositories
                 new CommandDefinition(sql, parameters, cancellationToken: cancellationToken)
             );
 
-            var items = await multi.ReadAsync<TournamentDto>();
-            var total = await multi.ReadFirstAsync<int>();
+            var data = await multi.ReadAsync<TournamentDto>();
+            var totalRecords = await multi.ReadFirstAsync<int>();
 
-            return new PagedResult<TournamentDto>(items, total, pageNumber, pageSize);
+            return new PagedResult<TournamentDto>(data, totalRecords, pageNumber, pageSize);
         }
     }
 }
