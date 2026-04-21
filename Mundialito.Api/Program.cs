@@ -47,6 +47,7 @@ builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<ITeamQueryRepository, TeamQueryRepository>();
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IPlayerQueryRepository, PlayerQueryRepository>();
+builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 
 var app = builder.Build();
 
@@ -58,6 +59,7 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 app.MapTournamentEndpoints();
 app.MapTeamEndpoints();
 app.MapPlayerEndpoints();
+app.MapMatchEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {

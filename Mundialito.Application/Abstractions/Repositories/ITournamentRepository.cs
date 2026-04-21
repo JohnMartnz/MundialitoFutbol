@@ -9,5 +9,6 @@ namespace Mundialito.Application.Abstractions.Repositories
     {
         Task AddAsync(Tournament tournament, CancellationToken cancellationToken = default);
         Task<bool> NameExistsAsync(string name, CancellationToken cancellationToken = default);
+        Task<Tournament?> GetByIdAsync(Guid tournamentId, CancellationToken cancellationToken = default);
     }
 }

@@ -28,7 +28,7 @@ namespace Mundialito.Application.Features.Players.Command
                 return Result<Guid>.Validation("El nombre del jugador no puede estar vacío.");
             }
 
-            var existingTeam = await _teamRepository.GetTeamByIdAsync(request.TeamId, cancellationToken);
+            var existingTeam = await _teamRepository.GetByIdAsync(request.TeamId, cancellationToken);
             if (existingTeam is null)
             {
                 return Result<Guid>.NotFound($"El equipo con ID {request.TeamId} no existe.");
