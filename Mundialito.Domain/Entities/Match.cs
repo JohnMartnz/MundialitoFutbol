@@ -8,6 +8,7 @@ namespace Mundialito.Domain.Entities
 {
     public class Match : BaseEntity
     {
+        public Guid TournamentId { get; private set; }
         public Guid HomeTeamId { get; private set; }
         public Guid VisitingTeamId { get; private set; }
         public Team? HomeTeam { get; private set; }
@@ -29,15 +30,27 @@ namespace Mundialito.Domain.Entities
             return Result.Success();
         }
 
-        public Result RegisterGoal(int homeGoals, int visitingGoals)
+        public Result RegisterGoal(Guid teamScoredId)
         {
             if (Status != MatchStatus.InProgress)
             {
                 return Result.Failure("Solo se pueden registrar goles en un partido en progreso.");
             }
 
-            HomeTeamGoals = homeGoals;
-            VisitingTeamGoals = visitingGoals;
+            if(teamScoredId != HomeTeamId && teamScoredId != VisitingTeamId)
+            {
+                return Result.Failure("El equipo anotador no participa en este partido.");
+            }
+
+            if(teamScoredId == HomeTeamId)
+            {
+                HomeTeamGoals++;
+            }
+
+            if (teamScoredId == VisitingTeamId)
+            {
+                VisitingTeamGoals++;
+            }
             return Result.Success();
         }
 
@@ -51,11 +64,12 @@ namespace Mundialito.Domain.Entities
             return Result.Success();
         }
 
-        public static Match Scheledule(Guid homeTeamId, Guid visitingTeamId, DateTime matchDate)
+        public static Match Scheledule(Guid tournamentId, Guid homeTeamId, Guid visitingTeamId, DateTime matchDate)
         {
             return new Match()
             {
                 Id = Guid.NewGuid(),
+                TournamentId = tournamentId,
                 HomeTeamId = homeTeamId,
                 VisitingTeamId = visitingTeamId,
                 HomeTeamGoals = 0,
@@ -67,13 +81,13 @@ namespace Mundialito.Domain.Entities
 
         public void UpdateMatchStatus()
         {
-            if(Status == MatchStatus.Scheleduled && MatchDate <= DateTime.UtcNow)
+            if(Status == MatchStatus.Scheleduled)
             {
                 Status = MatchStatus.InProgress;
                 return;
             }
             
-            if(Status == MatchStatus.InProgress && MatchDate.AddHours(2) <= DateTime.UtcNow)
+            if(Status == MatchStatus.InProgress)
             {
                 Status = MatchStatus.Finished;
             }
