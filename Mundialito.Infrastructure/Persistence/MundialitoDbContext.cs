@@ -22,7 +22,7 @@ namespace Mundialito.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TeamTournament>().HasKey(teamTournament => new { teamTournament.Id, teamTournament.TeamId });
+            modelBuilder.Entity<TeamTournament>().HasKey(teamTournament => new { teamTournament.TournamentId, teamTournament.TeamId });
 
             modelBuilder.Entity<Match>(entity =>
             {
@@ -34,6 +34,11 @@ namespace Mundialito.Infrastructure.Persistence
                 entity.HasOne(match => match.VisitingTeam)
                 .WithMany()
                 .HasForeignKey(match => match.VisitingTeamId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<Tournament>()
+                .WithMany()
+                .HasForeignKey(match => match.TournamentId)
                 .OnDelete(DeleteBehavior.Restrict);
             });
 
