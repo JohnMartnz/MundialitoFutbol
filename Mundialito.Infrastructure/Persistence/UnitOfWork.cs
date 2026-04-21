@@ -24,23 +24,26 @@ namespace Mundialito.Infrastructure.Persistence
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var events = _context.ChangeTracker.Entries<BaseEntity>()
-                .SelectMany(e => e.Entity.DomainEvents)
+            var entities = _context.ChangeTracker.Entries<BaseEntity>()
+                .Select(e => e.Entity)
+                .Where(e => e.DomainEvents.Any())
                 .ToList();
 
+            var events = entities.SelectMany(e => e.DomainEvents).ToList();
+
             await _context.SaveChangesAsync(cancellationToken);
+
+            entities.ForEach(e => e.ClearDomainEvents());
+
 
             foreach(var domainEvent in events)
             {
                 _logger.LogInformation("Publishing domain event {EventType} with {EventId} at {OcurredAt}", domainEvent.GetType().Name, domainEvent.Id, domainEvent.OccurredAt);
 
                 var notification = new DomainEventNotification<IDomainEvent>(domainEvent);
-                await _publisher.Publish(notification, cancellationToken);
+                
+                await _publisher.Publish(new DomainEventNotification<IDomainEvent>(domainEvent), cancellationToken);
             }
-
-            _context.ChangeTracker.Entries<BaseEntity>()
-                .ToList()
-                .ForEach(e => e.Entity.ClearDomainEvents());
         }
     }
 }
