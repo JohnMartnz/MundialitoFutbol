@@ -26,5 +26,10 @@ namespace Mundialito.Infrastructure.Repositories
         {
             return await _dbContext.Teams.FirstOrDefaultAsync(team => team.Name == name, cancellationToken);
         }
+
+        public async Task<Team?> GetTeamByIdAsync(Guid teamId, CancellationToken cancellationToken)
+        {
+            return await _dbContext.Teams.FindAsync(new object[] { teamId }, cancellationToken);
+        }
     }
 }
