@@ -38,11 +38,13 @@ SerilogConfig.Configure();
 builder.Host.UseSerilog();
 
 // Repositories
-builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
-builder.Services.AddScoped<ITournamentQueryRepository, TournamentQueryRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IIdempotencyService, IdempotencyService>();
 builder.Services.AddScoped<IConnectionFactory, SqlConnectionFactory>();
+builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
+builder.Services.AddScoped<ITournamentQueryRepository, TournamentQueryRepository>();
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
+builder.Services.AddScoped<ITeamQueryRepository, TeamQueryRepository>();
 
 var app = builder.Build();
 
@@ -52,6 +54,7 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 
 // Endpoints
 app.MapTournamentEndpoints();
+app.MapTeamEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
