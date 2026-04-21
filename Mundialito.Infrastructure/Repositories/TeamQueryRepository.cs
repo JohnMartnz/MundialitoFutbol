@@ -21,46 +21,68 @@ namespace Mundialito.Infrastructure.Repositories
 
         public async Task<PagedResult<TeamsResponse>> GetPagedAsync(
             QueryParams queryParams,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken
+        )
         {
             using var connection = _connectionFactory.CreateConnection();
+            var sortColumns = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "name", "Name" },
+                { "id", "Id" }
+            };
 
-            var whereClause = new StringBuilder("WHERE 1 = 1");
+            var sortBy = sortColumns.TryGetValue(queryParams.SortBy ?? "name", out var column)
+                ? column
+                : "Name";
+
+            var sortDirection = queryParams.SortDirection?.ToLower() == "desc"
+                ? "DESC"
+                : "ASC";
+
+            var conditions = new List<string>();
             var parameters = new DynamicParameters();
 
-            if (!string.IsNullOrEmpty(queryParams.Search))
+            if (!string.IsNullOrWhiteSpace(queryParams.Search))
             {
-                whereClause.Append(" AND Name LIKE @Search");
+                conditions.Add("Name LIKE @Search");
                 parameters.Add("Search", $"%{queryParams.Search}%");
             }
 
-            var orderByClause = queryParams.SortBy?.ToLower() switch
-            {
-                "name" => "Name",
-                _ => "Name"
-            };
+            var whereClause = conditions.Count > 0
+                ? "WHERE " + string.Join(" AND ", conditions)
+                : string.Empty;
 
-            var sortDirectionClause = queryParams.SortDirection?.ToLower() == "desc" ? "DESC" : "ASC";
-            var offset = (queryParams.PageNumber - 1) * queryParams.PageSize;
+            var pageNumber = queryParams.PageNumber <= 0 ? 1 : queryParams.PageNumber;
+            var pageSize = queryParams.PageSize <= 0 ? 10 : queryParams.PageSize;
+            var offset = (pageNumber - 1) * pageSize;
+
+            parameters.Add("Offset", offset);
+            parameters.Add("PageSize", pageSize);
 
             var sql = $@"
                 SELECT Id, Name
                 FROM Teams
                 {whereClause}
-                ORDER BY {orderByClause} {sortDirectionClause}
+                ORDER BY {sortBy} {sortDirection}
                 OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
 
-                SELECT COUNT(1) FROM Teams {whereClause};
+                SELECT COUNT(1)
+                FROM Teams
+                {whereClause};
             ";
 
-            parameters.Add("Offset", offset);
-            parameters.Add("PageSize", queryParams.PageSize);
+            using var multi = await connection.QueryMultipleAsync(
+                new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
 
-            using var multi = await connection.QueryMultipleAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
             var items = (await multi.ReadAsync<TeamsResponse>()).ToList();
             var totalCount = await multi.ReadFirstAsync<int>();
 
-            return new PagedResult<TeamsResponse>(items, totalCount, queryParams.PageNumber, queryParams.PageSize);
+            return new PagedResult<TeamsResponse>(
+                items,
+                totalCount,
+                pageNumber,
+                pageSize
+            );
         }
     }
 }
