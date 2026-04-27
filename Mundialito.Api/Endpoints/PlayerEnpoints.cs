@@ -24,7 +24,7 @@ namespace Mundialito.Api.Endpoints
             .WithName("CreatePlayer")
             .WithSummary("Create a new player");
 
-            group.MapGet("/", async ([FromQuery] Guid ? teamId, [AsParameters] QueryParams queryParams, ISender sender) =>
+            group.MapGet("/", async ([FromQuery] Guid? teamId, [AsParameters] QueryParams queryParams, ISender sender) =>
             {
                 var query = new GetPlayersQuery(queryParams, teamId);
                 var result = await sender.Send(query);

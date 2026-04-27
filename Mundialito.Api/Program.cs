@@ -50,6 +50,7 @@ builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IPlayerQueryRepository, PlayerQueryRepository>();
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddScoped<IGoalMatchRepository, GoalMatchRepository>();
+builder.Services.AddScoped<IMatchQueryRepository, MatchQueryRepository>();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {

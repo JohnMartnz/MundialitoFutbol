@@ -1,10 +1,13 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Mundialito.Api.Extensions;
 using Mundialito.Api.Filters;
+using Mundialito.Application.Common;
 using Mundialito.Application.Features.GoalsMatch.Commands.RegisterGoal;
 using Mundialito.Application.Features.Matches.Command.ScheduleMatch;
 using Mundialito.Application.Features.Matches.Command.StartMatch;
+using Mundialito.Application.Features.Matches.Queries.GetMatches;
 using Mundialito.Domain.Common;
 
 namespace Mundialito.Api.Endpoints
@@ -30,6 +33,16 @@ namespace Mundialito.Api.Endpoints
             .AddEndpointFilter<IdempotencyFilter>()
             .WithName("ScheduleMatch")
             .WithSummary("Schedules a new match between two teams in a tournament.");
+
+            group.MapGet("/", async ([FromQuery] Guid? tournamentId, [FromQuery] Guid? teamId, [AsParameters] QueryParams queryParams, ISender sender) =>
+            {
+                var query = new GetMatchesQuery(queryParams, tournamentId, teamId);
+                var result = await sender.Send(query);
+
+                return Results.Ok(result);
+            })
+            .WithName("GetMatches")
+            .WithSummary("Get a list of matches with pagination and optional filtering by tournament or team.");
 
             group.MapPatch("/{matchId:guid}/start", async (Guid matchId, ISender sender) =>
             {
