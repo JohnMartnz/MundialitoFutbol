@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Mundialito.Api.Extensions;
 using Mundialito.Api.Filters;
+using Mundialito.Application.Features.GoalsMatch.Commands.RegisterGoal;
 using Mundialito.Application.Features.Matches.Command.ScheduleMatch;
 using Mundialito.Application.Features.Matches.Command.StartMatch;
 using Mundialito.Domain.Common;
@@ -39,6 +40,16 @@ namespace Mundialito.Api.Endpoints
             })
             .WithName("StartMatch")
             .WithSummary("Starts a scheduled match, changing its status to 'In Progress'.");
+
+            group.MapPatch("/{matchId:guid}/goal", async (Guid matchId, RegisterGoalRequest request, ISender sender) =>
+            {
+                var command = new RegisterGoalCommand(matchId, request.PlayerId, request.TeamScoredId, request.MinuteScored);
+                var result = await sender.Send(command);
+
+                return result.ToHttpResult();
+            })
+            .WithName("RegisterGoal")
+            .WithSummary("Register a goal scored in a match, updating the match status and score accordingly.");
         }
     }
 }

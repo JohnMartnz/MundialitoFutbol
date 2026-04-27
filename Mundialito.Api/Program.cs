@@ -11,6 +11,7 @@ using Mundialito.Infrastructure.Idempotency;
 using Mundialito.Infrastructure.Persistence;
 using Mundialito.Infrastructure.Repositories;
 using Serilog;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,12 @@ builder.Services.AddScoped<ITeamQueryRepository, TeamQueryRepository>();
 builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 builder.Services.AddScoped<IPlayerQueryRepository, PlayerQueryRepository>();
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
+builder.Services.AddScoped<IGoalMatchRepository, GoalMatchRepository>();
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 var app = builder.Build();
 

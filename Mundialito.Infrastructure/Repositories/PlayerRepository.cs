@@ -20,5 +20,10 @@ namespace Mundialito.Infrastructure.Repositories
         {
             await _dbContext.Players.AddAsync(player, cancellationToken);
         }
+
+        public async Task<Player?> GetByIdAsync(Guid playerId, CancellationToken cancellationToken)
+        {
+            return await _dbContext.Players.FindAsync(new object[] {playerId}, cancellationToken);
+        }
     }
 }
